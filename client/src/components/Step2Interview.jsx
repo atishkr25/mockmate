@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react'
 import 'regenerator-runtime/runtime';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
-import maleVideo from "../assets/videos/male.mp4"
 import femaleVideo from "../assets/videos/female.mp4";
 import Timer from './Timer.jsx';
 import { serverURL } from '../App.jsx';
@@ -21,7 +20,6 @@ function Step2Interview({interviewData, onFinish}) {
   const [timeLeft, setTimeLeft] = useState(questions[currentIndex]?.timeLimit || 60);
   const [selectedVoice, setSelectedVoice] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [voiceGender, setVoiceGender] = useState(maleVideo);
   const [subtitle, setSubtitle] = useState("");
   const micEnabledRef = useRef(isMicOn);
   const aiPlayingRef = useRef(isAIPlaying);
@@ -58,27 +56,11 @@ function Step2Interview({interviewData, onFinish}) {
       )
       if (femaleVoices) {
         setSelectedVoice(femaleVoices);
-        setVoiceGender("female")
         return;
       }
 
-      // try known for male voices
-      const maleVoices =
-      voices.find(v =>
-        v.name.toLowerCase().includes("david") ||
-        v.name.toLowerCase().includes("john") ||
-        v.name.toLowerCase().includes("male") ||
-        v.name.toLowerCase().includes("mark") 
-      )
-      if (maleVoices) {
-        setSelectedVoice(maleVoices);
-        setVoiceGender("male");
-        return;
-      }
-
-      // fallback to first voice
+      // Keep the female avatar even when the browser has no named female voice.
       setSelectedVoice(voices[0]);
-      setVoiceGender("male");
 
     };
 
@@ -90,7 +72,7 @@ function Step2Interview({interviewData, onFinish}) {
     };
   }, [])
 
-  const videoSource = (voiceGender === "male") ? maleVideo : femaleVideo;
+  const videoSource = femaleVideo;
 
   const commitTranscript = () => {
     const currentTranscript = transcriptRef.current;

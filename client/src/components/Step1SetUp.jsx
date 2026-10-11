@@ -90,40 +90,38 @@ const Step1SetUp = ({onStart}) => {
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
     transition={{ duration: 0.6 }}
-    className='min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 px-4'>
-      <div className='w-full max-w-6xl bg-white rounded-3xl shadow-2xl grid md:grid-cols-2 overflow-hidden'>
+    className='min-h-screen flex items-center justify-center bg-stone-100 px-4 py-24 sm:px-6'>
+      <div className='w-full max-w-5xl overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-xl grid md:grid-cols-2'>
         {/* Left side */}
         <motion.div 
         initial={{ x: -80, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.7 }}
-        className='relative bg-gradient-to-br from-green-50 to-green-100 p-12 flex flex-col justify-center'>
+        className='relative bg-stone-900 p-8 text-white sm:p-10 flex flex-col justify-center'>
+          <div className='relative z-10'>
 
-          <h2 className='text-4xl font-bold text-gray-800 mb-6'>
+          <p className='mb-4 text-xs font-bold uppercase tracking-[0.2em] text-orange-400'>The practice room</p>
+          <h2 className='display-serif text-4xl leading-[0.98] text-white mb-5 sm:text-5xl'>
             Start Your AI Interview
           </h2>
 
-          <p className='text-gray-600 mb-10'>
-            Practice real interviewScenarios powered by AI.
-            Improve Communication, technical skills, and confidence.
+          <p className='max-w-md text-sm text-stone-400 mb-8 leading-6'>
+            Practice realistic interview scenarios powered by AI. Improve communication, technical depth, and confidence.
           </p>
 
           <div className='space-y-5'>
             {
               [
                 {
-                  icon: <FaUserTie 
-                  className='text-green-600 text-xl' />,
+                  icon: <FaUserTie className='text-orange-400 text-xl' />,
                   text: "Choose Role & Experience"
                 },
                 {
-                  icon: <FaMicrophoneAlt
-                  className='text-green-600 text-xl' />,
+                  icon: <FaMicrophoneAlt className='text-orange-400 text-xl' />,
                   text: "Smart Voice Interview"
                 },
                 {
-                  icon: <FaChartLine
-                  className='text-green-600 text-xl' />,
+                  icon: <FaChartLine className='text-orange-400 text-xl' />,
                   text: "Performance Analytics"
                 }
               ].map((item,index) => (
@@ -133,12 +131,13 @@ const Step1SetUp = ({onStart}) => {
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.3 + index * 0.15 }}
                 whileHover={{ scale: 1.03 }}
-                className='flex items-center space-x-4 bg-white p-4 rounded-xl shadow-sm cursor-pointer'>
+                className='flex items-center space-x-4 rounded-xl border border-white/10 bg-white/10 p-3.5 cursor-pointer transition hover:bg-white/15'>
                   {item.icon}
-                  <span className='text-gray-700 font-medium'>{item.text}</span>
+                  <span className='text-stone-200 font-medium'>{item.text}</span>
                 </motion.div>
               ))
             }
+          </div>
           </div>
 
         </motion.div>
@@ -148,28 +147,29 @@ const Step1SetUp = ({onStart}) => {
         initial={{ x: 80, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.7 }}
-        className='p-12 bg-white'>
-          <h2 className='text-3xl font-bold text-gray-800 mb-8'>
-            Interview SetUp
+        className='bg-white p-8 sm:p-10'>
+          <p className='mb-3 text-xs font-bold uppercase tracking-[0.2em] text-orange-600'>Build your session</p>
+          <h2 className='display-serif text-4xl leading-none text-stone-900 mb-7'>
+            Interview setup
           </h2>
 
           <div className='space-y-6'>
             <div className='relative'>
-              <FaUserTie className='absolute top-4 left-4 text-gray-400' />
+              <FaUserTie className='absolute top-4 left-4 text-stone-400' />
               <input 
               type="text" 
               placeholder='Enter role' 
-              className='w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none transition' 
+              className='w-full rounded-xl border border-stone-200 bg-white py-3 pl-12 pr-4 outline-none transition placeholder:text-stone-400 focus:border-orange-400 focus:ring-2 focus:ring-orange-100'
               onChange={(e) => setRole(e.target.value)} 
               value={role} />
             </div>
 
             <div className='relative'>
-              <FaBriefcase className='absolute top-4 left-4 text-gray-400' />
+              <FaBriefcase className='absolute top-4 left-4 text-stone-400' />
               <input 
               type="text" 
               placeholder='Experience (e.g. 2 years)' 
-              className='w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none transition' 
+              className='w-full rounded-xl border border-stone-200 bg-white py-3 pl-12 pr-4 outline-none transition placeholder:text-stone-400 focus:border-orange-400 focus:ring-2 focus:ring-orange-100'
               onChange={(e) => setExperience(e.target.value)} 
               value={experience} />
 
@@ -178,7 +178,7 @@ const Step1SetUp = ({onStart}) => {
             <select 
               value={mode} 
               onChange={(e) => setMode(e.target.value)}
-              className='w-full py-3 px-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none transition'>
+              className='w-full rounded-xl border border-stone-200 bg-white px-4 py-3 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100'>
 
               <option value="Technical">Technical Interview</option>
               <option value="HR">HR Interview</option>
@@ -190,9 +190,9 @@ const Step1SetUp = ({onStart}) => {
                 <motion.div 
                 whileHover={{scale: 1.02}}
                 onClick={() => document.getElementById("resume-upload").click()}
-                className='border-2 border-dashed border-gray-300 rounded-xl p-8 text-center cursor-pointer hover:border-green-500 hover:bg-green-50 transition'> 
+                className='rounded-2xl border-2 border-dashed border-stone-300 bg-white p-8 text-center cursor-pointer transition hover:border-orange-400 hover:bg-orange-50/40'>
                   <FaFileUpload 
-                  className='text-4xl mx-auto text-green-600 mb-3' />
+                  className='text-4xl mx-auto text-orange-600 mb-3' />
 
                   <input 
                   accept='application/pdf'
@@ -202,7 +202,7 @@ const Step1SetUp = ({onStart}) => {
                   onChange={(e) => setResumeFile(e.target.files[0])}
                   />
                   <p 
-                  className='text-gray-500 font-medium'>
+                  className='text-stone-500 font-medium'>
                   {resumeFile ? resumeFile.name : "Click to upload resume (optional)"}
                   </p>
 
@@ -210,7 +210,7 @@ const Step1SetUp = ({onStart}) => {
                     <motion.button
                     whileHover={{ scale:1.02 }}
                     onClick={(e) => {e.stopPropagation(); handleUploadResume();}}
-                    className='mt-4 bg-gray-900 text-white px-5 py-2 rounded-lg hover:bg-gray-800 transition'>
+                    className='mt-4 rounded-full bg-stone-900 px-5 py-2 text-sm font-bold text-white transition hover:bg-orange-600'>
                       {analysing ? "Analysing..." : "Analyse Resume"}
 
                     </motion.button>
@@ -223,16 +223,16 @@ const Step1SetUp = ({onStart}) => {
                 <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className='bg-gray-50 border border-gray-200 rounded-xl p-5 space-y-4'>
+                className='space-y-4 rounded-2xl border border-stone-200 bg-white p-5'>
                   <h3
-                  className='text-lg font-semibold text-gray-800'>
+                  className='display-serif text-3xl text-stone-900'>
                     Resume Analysis result
                   </h3>
 
                   {projects.length >0 &&(
                     <div>
-                    <p className='font-medium text-gray-700 mb-1'>Projects:</p>
-                    <ul className='list-disc list-inside text-gray-600 space-y-1'>
+                    <p className='mb-1 font-bold text-stone-700'>Projects:</p>
+                    <ul className='list-disc list-inside space-y-1 text-stone-500'>
                       {projects.map((project,index) => (
                         <li key={index}>{project}</li>
                       ))}
@@ -242,10 +242,10 @@ const Step1SetUp = ({onStart}) => {
 
                   {skills.length >0 &&(
                     <div>
-                    <p className='font-medium text-gray-700 mb-1'>Skills:</p>
+                    <p className='mb-1 font-bold text-stone-700'>Skills:</p>
                     <div className='flex flex-wrap gap-2'>
                       {skills.map((skill,index) => (
-                        <span key={index} className='bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm'>{skill}</span>
+                        <span key={index} className='rounded-full bg-orange-100 px-3 py-1 text-sm text-orange-700'>{skill}</span>
                       ))}
                     </div>
                     </div>
@@ -258,7 +258,7 @@ const Step1SetUp = ({onStart}) => {
                 <motion.p
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className='text-center text-sm text-red-500 font-medium'>
+                className='text-center text-sm font-medium text-red-500'>
                   Low credits ({userData.credits}). You need at least 50 to start an interview.
                 </motion.p>
               )}
@@ -268,7 +268,7 @@ const Step1SetUp = ({onStart}) => {
               disabled={!role || !experience || loading || (userData && userData.credits < 50)}
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.95 }}
-              className='w-full disabled:bg-gray-600 bg-green-600 hover:bg-green-700 text-white py-3 rounded-full text-lg font-semibold transition duration-300 shadow-md'>
+              className='w-full rounded-full bg-orange-600 py-3 text-lg font-semibold text-white shadow-lg shadow-orange-600/15 transition duration-300 hover:bg-orange-500 disabled:bg-stone-300 disabled:text-stone-500'>
                 {loading ? "Starting..." : "Start Interview"}
               </motion.button>
           </div>
