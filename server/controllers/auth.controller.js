@@ -6,6 +6,10 @@ import genToken from "../config/token.js";
 export const googleAuth = async (req, res) => {
     try {
         const {name, email} = req.body;
+        if (!name || !email) {
+            return res.status(400).json({message: "Name and email are required"});
+        }
+
         let user = await User.findOne({email});
         if(!user) {
             user = await User.create({
@@ -14,10 +18,11 @@ export const googleAuth = async (req, res) => {
             });
         }
         let token = await genToken(user._id)
+        const isProduction = process.env.NODE_ENV === "production";
         res.cookie("token", token, {
             httpOnly: true,
-            secure: true,
-            sameSite: "none",
+            secure: isProduction,
+            sameSite: isProduction ? "none" : "lax",
             maxAge: 7*24*60*60*1000
         })
 

@@ -5,6 +5,10 @@ import crypto from "crypto";
 
 export const createOrder = async (req, res) => {
     try {
+        if (!razorpay) {
+            return res.status(503).json({message: "Payments are not configured yet."});
+        }
+
         const {planId, amount, credits} = req.body;
             if(!amount || !credits) {
                 return res.status(400).json({message: "Invalid Plan Data"});
