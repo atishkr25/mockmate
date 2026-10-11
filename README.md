@@ -1,32 +1,33 @@
 # MockMate
 
-MockMate is an AI-powered mock interview platform. It helps candidates practice realistic interviews, answer questions with voice input, receive structured feedback, and review their performance over time.
+MockMate is a practical AI mock interview platform for people who want to prepare by actually speaking, not just reading another list of interview tips.
 
-## Features
+Pick a role, share a little context, and step into a timed interview with an AI interviewer. MockMate asks questions, listens to your answers, and turns each session into feedback you can use.
 
-- Google sign-in through Firebase Authentication
-- Resume upload and PDF text extraction
-- Resume-aware interview question generation
-- Technical, HR, and managerial interview modes
-- Five-question interviews with increasing difficulty
-- Browser speech recognition and text-to-speech prompts
-- AI evaluation of confidence, communication, correctness, and final score
-- Interview history and detailed reports
-- PDF report download
-- Credit-based interview usage
-- Razorpay credit purchases when payment credentials are configured
+## What It Does
 
-## User Flow
+- Google sign-in with Firebase Authentication
+- Role-based technical, HR, and managerial interviews
+- Optional PDF resume upload and resume-aware questions
+- Five questions with increasing difficulty
+- Voice-first interview experience with browser speech recognition
+- Female AI interviewer avatar and spoken prompts
+- Feedback on confidence, communication, and correctness
+- Interview history and detailed performance reports
+- Downloadable PDF reports
+- Optional Razorpay credit purchases
+
+## A Session, End to End
 
 1. Sign in with Google.
-2. Enter a target role, experience level, and interview mode.
-3. Optionally upload a PDF resume.
-4. Start an AI-generated five-question interview.
-5. Answer each question by voice or text.
-6. Receive question-level feedback and a final performance report.
-7. Review completed interviews from the history page.
+2. Choose the role, experience level, and interview mode.
+3. Upload a PDF resume if you want more personalized questions.
+4. Start the session and answer each question naturally.
+5. Receive feedback after each answer.
+6. Finish the interview to see your overall report.
+7. Revisit past sessions from Interview History.
 
-## Interview Rules
+The interview is deliberately structured to become more difficult as it goes:
 
 | Question | Difficulty | Time limit |
 | --- | --- | ---: |
@@ -36,42 +37,39 @@ MockMate is an AI-powered mock interview platform. It helps candidates practice 
 | 4 | Hard | 120 seconds |
 | 5 | Very hard | 120 seconds |
 
-An unanswered or timed-out question receives a score of zero. Other answers are evaluated by the configured AI provider.
+An unanswered or timed-out question receives a score of zero. Answers that are submitted in time are evaluated by the configured OpenRouter model, with automatic fallback across the configured free models if one is unavailable.
 
 ## Credits
 
-- New users start with 150 credits.
-- Generating an interview costs 50 credits.
-- A user must have at least 50 credits to start an interview.
-- Credits are application data stored in MongoDB; they are separate from AI-provider billing or API tokens.
+Every new account starts with 150 credits. Starting an interview costs 50 credits, so the balance is managed by the application in MongoDB. These credits are separate from OpenRouter usage limits or provider billing.
 
-## Technology
+## Tech Stack
 
-### Client
+### Frontend
 
-- React 19 and Vite
+- React 19 with Vite
 - React Router
 - Redux Toolkit
 - Axios
-- Tailwind CSS
+- Tailwind CSS v4
 - Motion and React Icons
 - Recharts and React Circular Progressbar
 - jsPDF and jspdf-autotable
 - Firebase Authentication
-- Web Speech API through react-speech-recognition
+- Browser Web Speech APIs through react-speech-recognition
 
-### Server
+### Backend
 
 - Node.js and Express
 - MongoDB with Mongoose
 - JWT authentication in HTTP-only cookies
 - CORS and cookie-parser
 - Multer for PDF uploads
-- pdfjs-dist for resume parsing
-- OpenRouter-compatible AI requests
-- Razorpay payment integration
+- pdfjs-dist for resume text extraction
+- OpenRouter for AI generation and evaluation
+- Razorpay for optional credit purchases
 
-## Repository Layout
+## Project Structure
 
 ```text
 .
@@ -86,71 +84,101 @@ An unanswered or timed-out question receives a score of zero. Other answers are 
 ├── server/
 │   ├── config/
 │   ├── controllers/
+│   ├── middlewares/
 │   ├── models/
-│   └── routes/
-├── screenshots/
+│   ├── routes/
+│   └── services/
+├── client/.env.example
+├── server/.env.example
 └── README.md
 ```
 
-## Environment Variables
+## Environment Setup
 
-Never commit `.env` files or real credentials. The repository ignores `.env` and `.env.*` files.
+Keep real `.env` files local. They are ignored by Git. Safe templates are available in `client/.env.example` and `server/.env.example`.
 
-### Client: `client/.env`
+### Client environment
+
+Create `client/.env`:
 
 ```dotenv
-VITE_SERVER_URL=http://localhost:5000
+VITE_SERVER_URL=http://localhost:5100
 VITE_RAZORPAY_KEY_ID=your_razorpay_public_key
+
+VITE_FIREBASE_API_KEY=your_firebase_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your_firebase_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your-project.firebasestorage.app
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_firebase_messaging_sender_id
+VITE_FIREBASE_APP_ID=your_firebase_app_id
+VITE_FIREBASE_MEASUREMENT_ID=your_firebase_measurement_id
 ```
 
-`VITE_SERVER_URL` points the Vite client to the API server. The Firebase configuration is currently defined in `client/src/utils/firebase.js`.
+The Firebase measurement ID is optional for Google login. The other Firebase web-app values are required by the client Firebase initialization.
 
-### Server: `server/.env`
+### Server environment
+
+Create `server/.env`:
 
 ```dotenv
-MONGODB_URL=mongodb://localhost:27017
+MONGODB_URL=your_mongodb_connection_string
 JWT_SECRET_KEY=replace_with_a_long_random_secret
 OPENROUTER_API_KEY=your_openrouter_api_key
+
+# Optional until payments are enabled
 RAZORPAY_KEY_ID=your_razorpay_key_id
 RAZORPAY_KEY_SECRET=your_razorpay_key_secret
-PORT=5000
+
+PORT=5100
+NODE_ENV=development
 ```
 
-`RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET` are only required for payment features. MongoDB, JWT, and OpenRouter credentials are required for the corresponding server features.
+The database name is defined in `server/config/constants.js`. For MongoDB Atlas, make sure the database user and network access rules allow the machine running the API to connect. URL-encode special characters in the database username or password, such as `@` becoming `%40`.
 
-The database name is defined in `server/config/constants.js` as `ai-interview-agent`. A MongoDB Atlas connection can be used instead of a local MongoDB URL. Restrict Atlas network access to known deployment IPs when possible; `0.0.0.0/0` allows access from anywhere and should be treated as a temporary development setting.
+### Firebase checklist
 
-## API Routes
+In Firebase Console:
 
-| Method | Route | Purpose | Auth |
-| --- | --- | --- | --- |
-| `POST` | `/api/auth/google` | Create or find a Google-authenticated user | No |
-| `POST` | `/api/auth/logout` | Clear the authentication cookie | No |
-| `GET` | `/api/user/current-user` | Return the current user | Yes |
-| `POST` | `/api/interview/resume` | Parse an uploaded PDF resume | Yes |
-| `POST` | `/api/interview/generate-questions` | Generate and save five questions | Yes |
-| `POST` | `/api/interview/submit-answer` | Evaluate and save an answer | Yes |
-| `POST` | `/api/interview/finish` | Complete an interview and calculate totals | Yes |
-| `GET` | `/api/interview/get-interview` | List the user's interviews | Yes |
-| `GET` | `/api/interview/report/:interviewId` | Return one interview report | Yes |
-| `POST` | `/api/payment/order` | Create a Razorpay order | Yes |
-| `POST` | `/api/payment/verify` | Verify a Razorpay payment | Yes |
+1. Create or select a web app and copy its config into `client/.env`.
+2. Enable Google under Authentication > Sign-in method.
+3. Add `localhost`, `127.0.0.1`, and the production frontend domain under Authorized domains.
+4. Add your Google account as a test user if the OAuth consent screen is still in testing.
 
-Authenticated requests use the HTTP-only `token` cookie. The client sends cookies with Axios `withCredentials: true`.
+Firestore is not required for the current application. User and interview data are stored in MongoDB.
 
-## Local Development
+## Run Locally
 
-### Frontend
+Install dependencies once in each app:
 
 ```bash
-cd client
+cd server
 npm install
+
+cd ../client
+npm install
+```
+
+Start the API in one terminal:
+
+```bash
+cd server
 npm run dev
 ```
 
-The Vite development server normally runs at `http://localhost:5173`. Its proxy forwards `/api` requests to `http://localhost:5000`.
+Start the Vite client in another:
 
-Available client scripts:
+```bash
+cd client
+npm run dev
+```
+
+The API runs on `http://localhost:5100` and the client normally runs on `http://localhost:5173`.
+
+On macOS, port `5000` may be occupied by AirTunes. Keeping both env files on port `5100` avoids that conflict.
+
+### Available scripts
+
+Client:
 
 ```bash
 npm run dev
@@ -159,66 +187,84 @@ npm run lint
 npm run preview
 ```
 
-### Backend
-
-The current checkout contains the backend configuration, models, controllers, and routes, but does not currently include the backend entrypoint, package manifest, middleware files, or external service modules. Restore or add those server runtime files before running the backend with Node.js.
-
-Once the server runtime is present, the expected local flow is:
+Server:
 
 ```bash
-cd server
-npm install
 npm run dev
+npm start
 ```
 
-The API is expected at `http://localhost:5000`.
+## API Overview
+
+| Method | Endpoint | Purpose | Auth |
+| --- | --- | --- | --- |
+| `POST` | `/api/auth/google` | Create or find a Google-authenticated user | No |
+| `POST` | `/api/auth/logout` | Clear the login cookie | No |
+| `GET` | `/api/user/current-user` | Return the current user | Yes |
+| `POST` | `/api/interview/resume` | Parse an uploaded PDF resume | Yes |
+| `POST` | `/api/interview/generate-questions` | Generate and save interview questions | Yes |
+| `POST` | `/api/interview/submit-answer` | Evaluate and save an answer | Yes |
+| `POST` | `/api/interview/finish` | Complete an interview and calculate totals | Yes |
+| `GET` | `/api/interview/get-interview` | List the user's interviews | Yes |
+| `GET` | `/api/interview/report/:interviewId` | Return one interview report | Yes |
+| `POST` | `/api/payment/order` | Create a Razorpay order | Yes |
+| `POST` | `/api/payment/verify` | Verify a Razorpay payment | Yes |
+
+Authenticated requests use the HTTP-only `token` cookie. The client sends it with Axios `withCredentials: true`.
 
 ## Authentication and Data
 
-Google authentication happens in the browser through Firebase. The client sends the authenticated user's name and email to the server. The server creates or finds the MongoDB user and issues a seven-day JWT cookie.
+Firebase handles the Google sign-in in the browser. The client sends the verified user's name and email to the API. The server creates or finds the MongoDB user, then issues a seven-day JWT cookie.
 
-The main data records are:
+The main MongoDB records are:
 
-- `User`: name, email, and credits
-- `Interview`: role, experience, mode, resume text, questions, answers, scores, feedback, status, and timestamps
-- `Payment`: plan, amount, purchased credits, Razorpay identifiers, and payment status
+- `User`: name, email, and application balance
+- `Interview`: role, experience, mode, resume text, questions, answers, feedback, scores, status, and timestamps
+- `Payment`: plan, amount, purchased balance, Razorpay identifiers, and payment status
 
 ## Troubleshooting
 
 ### The client cannot reach the API
 
-Check that the server is running on port 5000 and that `VITE_SERVER_URL` points to the correct API origin. Restart Vite after changing a client env file.
+Confirm that the server is running and that `VITE_SERVER_URL` matches the server `PORT`. Restart Vite after changing a client env file.
 
-### Requests return 401
+### Google login does not open or complete
 
-The user is not authenticated, the JWT cookie is missing, or the client request is missing `withCredentials: true`.
+Check that Google is enabled in Firebase Authentication, the current domain is authorized, and the Firebase values in `client/.env` belong to the same project.
+
+### Requests return `401 Unauthorized`
+
+The browser does not have a valid JWT cookie yet, the session expired, or the request is missing `withCredentials: true`.
 
 ### MongoDB does not connect
 
-Check `MONGODB_URL`, MongoDB Atlas network access, database credentials, and DNS access. Do not commit the connection string.
+Check the Atlas user, password encoding, network access rules, and `MONGODB_URL`. Do not commit the connection string.
 
-### Resume parsing fails
+### Resume upload fails
 
-Use a readable PDF file and confirm that the server has write access to its upload directory.
+Only PDF resumes are accepted and the upload limit is 5 MB. Make sure the API process can write to its `public` directory.
 
 ### Voice features do not work
 
-Use a browser with Web Speech API support, grant microphone permission, and check the browser console for speech-recognition errors.
+Use a browser with Web Speech API support, allow microphone access, and check the browser console for speech-recognition errors.
 
 ### Payments are unavailable
 
-Payment credentials are optional for the interview workflow. Add valid Razorpay credentials only when payment features are ready to be enabled.
+Payments are optional. Add valid Razorpay credentials when the purchase flow is ready to be enabled.
 
-## Security Checklist
+## Security Notes
 
-- Keep `client/.env` and `server/.env` local and untracked.
-- Never place server secrets in `VITE_*` variables.
+- Never commit `.env` files or paste real credentials into documentation.
+- Keep server secrets out of `VITE_*` variables.
 - Rotate MongoDB, OpenRouter, Razorpay, or JWT credentials if they are exposed.
-- Use a restricted MongoDB Atlas network rule in production.
+- Restrict MongoDB Atlas network access in production instead of leaving it open to every IP.
 - Use HTTPS in production so secure authentication cookies work correctly.
 - Use a strong, unique `JWT_SECRET_KEY`.
 
 ## License
 
 No license has been specified yet.
-[GitHub](https://github.com/jeetroy251-hue)
+
+## Maintainer
+
+Atish
