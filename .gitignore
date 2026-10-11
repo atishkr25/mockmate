@@ -3,3 +3,8 @@ temp_auto_push.bat
 temp_interactive_push.bat
 config.bat
 node_modules
+
+# Local environment files
+.env
+.env.*
+!.env.example
