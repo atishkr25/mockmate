@@ -17,6 +17,7 @@ function Step2Interview({interviewData, onFinish}) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answer, setAnswer] = useState("");
   const [feedback, setFeedback] = useState("");
+  const [hasSubmitted, setHasSubmitted] = useState(false);
   const [timeLeft, setTimeLeft] = useState(questions[currentIndex]?.timeLimit || 60);
   const [selectedVoice, setSelectedVoice] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -252,7 +253,7 @@ function Step2Interview({interviewData, onFinish}) {
       }, {withCredentials: true});
 
       setFeedback(result.data.feedback)
-      speakText(result.data.feedback)
+      setHasSubmitted(true)
       setIsSubmitting(false)
     } catch (error) {
       console.log(error);
@@ -263,6 +264,7 @@ function Step2Interview({interviewData, onFinish}) {
   const handleNext = async () => {
     setAnswer("");
     setFeedback("");
+    setHasSubmitted(false);
 
     if(currentIndex + 1 >= questions.length) {
       finishInterview();
@@ -377,7 +379,7 @@ useEffect(() => {
               Speech recognition is not supported in this browser. Please use Chrome or Edge with HTTPS.
             </div>
           )}
-          {!feedback ? (<div className='flex items-center gap-4 mt-6'>
+          {!hasSubmitted ? (<div className='flex items-center gap-4 mt-6'>
             <motion.div 
             onClick={toggleMic}
             whileTap={{ scale:0.9 }}
@@ -392,12 +394,11 @@ useEffect(() => {
               {isSubmitting?"submitting..":'Submit Answer'}
             </motion.button>
           </div>) : (
-            <motion.div 
-            initial= {{ opacity: 0 }}
+            <motion.div
+            initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className='mt-6 bg-emerald-50 border border-emerald-200 p-5 rounded-2xl shadow-sm'>
-              <p className='text-emerald-700 font-medium mb-4'>{feedback}</p>
-
+            className='mt-6 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm'>
+              <p className='mb-4 text-sm font-medium text-stone-500'>Answer saved. Your detailed feedback will appear in the final report.</p>
               <button
               onClick={handleNext} 
               className='w-full bg-gradient-to-r from-emerald-600 to-teal-500 text-white py-3 rounded-xl shadow-md hover:opacity-90 transition flex items-center justify-center gap-1'>

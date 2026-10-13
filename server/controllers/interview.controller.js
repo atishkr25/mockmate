@@ -3,9 +3,6 @@ import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
 import { askAi } from "../services/openRouter.service.js";
 import Interview from "../models/interview.model.js";
 import User from "../models/user.model.js";
-import Payment from "../models/payment.model.js";
-import razorpay from "../services/razorpay.service.js";
-import crypto from "crypto";
 
 export const analyzeResume = async (req, res) => {
     try {
@@ -270,21 +267,22 @@ export const submitAnswer = async (req, res) => {
                 - Do NOT explain scoring.
                 - Keep tone professional and honest.
 
-                Return ONLY valid JSON in this formate: 
+                Return ONLY valid JSON in this format:
 
                 {
                     "confidence": number,
                     "communication": numbeer,
                     "correctness": number,
                     "finalScore": number,
-                    "feedback": "short human feedback"
+                    "feedback": "short human feedback",
+                    "idealAnswer": "a concise, strong example answer"
                 }
                 `
             },
             {
                 role: "user",
                 content: `
-                Question: ${question.question}
+                Question: ${question.questionText}
                 Answer: ${answer}
                 `
             }
@@ -300,6 +298,7 @@ export const submitAnswer = async (req, res) => {
         question.correctness = parsed.correctness;
         question.score = parsed.finalScore;
         question.feedback = parsed.feedback;
+        question.idealAnswer = parsed.idealAnswer || "";
 
         await interview.save();
 
@@ -360,8 +359,10 @@ export const finishInterview = async (req, res) => {
             avgCommunication: Number(avgCommunication.toFixed(1)),
             avgCorrectness: Number(avgCorrectness.toFixed(1)),
             questionWiseScore: interview.questions.map((q) => ({
-                question: q.question,
+                questionText: q.questionText,
                 score: q.score || 0,
+                answer: q.answer || "",
+                idealAnswer: q.idealAnswer || "",
                 feedback: q.feedback || "",
                 confidence: q.confidence || 0,
                 communication: q.communication || 0,

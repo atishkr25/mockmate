@@ -5,6 +5,7 @@ const questionSchema = new mongoose.Schema({
     difficulty: String,
     timeLimit: Number,
     answer: String,
+    idealAnswer: String,
     feedback: String,
     score: {type: Number, default: 0},
     confidence: {type: Number, default: 0},

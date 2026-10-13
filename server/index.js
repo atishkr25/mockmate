@@ -6,7 +6,6 @@ import connectDb from "./config/connectDb.js";
 import authRouter from "./routes/auth.route.js";
 import userRouter from "./routes/user.route.js";
 import interviewRouter from "./routes/interview.route.js";
-import paymentRouter from "./routes/payment.route.js";
 
 const app = express();
 const port = Number(process.env.PORT || 5000);
@@ -27,7 +26,6 @@ app.get("/", (_req, res) => {
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 app.use("/api/interview", interviewRouter);
-app.use("/api/payment", paymentRouter);
 
 connectDb();
 

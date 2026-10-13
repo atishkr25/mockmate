@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { FaArrowLeft } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
@@ -27,6 +27,7 @@ const Step3Report = ({report}) => {
       )
   }
   const navigate = useNavigate()
+  const [openQuestion, setOpenQuestion] = useState(0)
   const {
     finalScore = 0,
     confidence = 0,
@@ -279,38 +280,45 @@ const Step3Report = ({report}) => {
             <h3 className='text-base sm:text-lg font-semibold text-gray-700 mb-6'>
               Question Breakdown
             </h3>
-            <div className='space-y-6'>
-              {questionWiseScore.map((q, index) => (
-                <div 
-                key={index}
-                className='bg-gray-50 p-4 sm:p-6 rounded-xl sm:rounded-2xl border border-gray-200'>
-                  <div className='flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-4'>
-                    <div>
-                      <p className='text-sm text-gray-400'>
-                        Question {index + 1}
-                      </p> 
-                      <p className='font-semibold text-gray-800 text-sm sm:text-base leading-relaxed'>
-                        {q.questionText || q.question || "Question not available"}
-                      </p>
-                    </div>
-                    <div className='bg-green-100 text-green-600 px-3 py-1 rounded-full font-bold text-xs sm:text-sm w-fit'>
-                      {q.score ?? 0}/10
-                    </div>
-                  </div>
+            <div className='space-y-4'>
+              {questionWiseScore.map((q, index) => {
+                const isOpen = openQuestion === index;
+                return (
+                  <div key={index} className='overflow-hidden rounded-2xl border border-stone-200 bg-white'>
+                    <button
+                      onClick={() => setOpenQuestion(isOpen ? null : index)}
+                      className={`flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition ${isOpen ? 'bg-orange-50/50' : 'hover:bg-stone-50'}`}
+                    >
+                      <span className='text-sm font-semibold leading-6 text-stone-900'>
+                        {q.questionText || q.question || `Question ${index + 1}`}
+                      </span>
+                      <span className='flex shrink-0 items-center gap-3'>
+                        <span className={`rounded-full px-3 py-1 text-xs font-bold ${Number(q.score || 0) >= 7 ? 'bg-green-100 text-green-700' : Number(q.score || 0) >= 5 ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'}`}>
+                          {q.score ?? 0}/10
+                        </span>
+                        <span className='text-stone-400'>{isOpen ? '−' : '+'}</span>
+                      </span>
+                    </button>
 
-                  <div className='bg-green-50 border border-green-200 p-4 rounded-lg'>
-                    <p className='text-xs text-green-600 font-semibold mb-1'>
-                      AI Feedback
-                    </p>
-                    <p className='text-sm text-gray-700 leading-relaxed'>
-                      {q.feedback && q.feedback.trim() !== "" 
-                      ? q.feedback 
-                      : "No Feedback Available for this question."}
-                    </p>
+                    {isOpen && (
+                      <div className='space-y-4 border-t border-stone-200 bg-white p-5'>
+                        <div className='rounded-xl border border-stone-200 bg-stone-50 p-4'>
+                          <p className='mb-2 text-xs font-bold uppercase tracking-[0.12em] text-stone-500'>Your answer</p>
+                          <p className='text-sm leading-6 text-stone-700'>{q.answer || 'No answer was submitted.'}</p>
+                        </div>
+                        <div className='rounded-xl border border-blue-100 bg-blue-50 p-4'>
+                          <p className='mb-2 text-xs font-bold uppercase tracking-[0.12em] text-blue-700'>Ideal answer</p>
+                          <p className='text-sm leading-6 text-stone-700'>{q.idealAnswer || 'An ideal answer was not generated for this question.'}</p>
+                        </div>
+                        <div className='rounded-xl border border-orange-100 bg-orange-50 p-4'>
+                          <p className='mb-2 text-xs font-bold uppercase tracking-[0.12em] text-orange-700'>AI feedback</p>
+                          <p className='text-sm leading-6 text-stone-700'>{q.feedback || 'No feedback is available for this question.'}</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
-
-                </div>
-              ))}
+                );
+              })}
             </div>
           </motion.div>
         </div>

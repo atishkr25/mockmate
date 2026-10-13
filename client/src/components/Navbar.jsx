@@ -37,7 +37,7 @@ function Navbar() {
           </button>
 
           <div className='hidden items-center gap-1 md:flex'>
-            {[['Features', '#features'], ['Practice', '#planning'], ['Credits', '#pricing']].map(([label, href]) => <a key={label} href={href} className='rounded-full px-4 py-2 text-sm font-medium text-stone-400 transition hover:bg-white/10 hover:text-white'>{label}</a>)}
+            {[['Features', '#features'], ['Practice', '#planning'], ['Credits', '#credits']].map(([label, href]) => <a key={label} href={href} className='rounded-full px-4 py-2 text-sm font-medium text-stone-400 transition hover:bg-white/10 hover:text-white'>{label}</a>)}
           </div>
 
           <div className='flex items-center gap-2'>
@@ -47,7 +47,7 @@ function Navbar() {
             </> : <button onClick={() => setShowAuth(true)} className='group flex items-center gap-2 rounded-full bg-orange-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-orange-500'>Sign in <BsArrowUpRight className='transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5' /></button>}
           </div>
 
-          {openMenu === 'credits' && <div className='absolute right-16 top-[4.8rem] w-60 rounded-2xl border border-stone-200 bg-white p-4 text-stone-900 shadow-2xl'><p className='text-sm font-bold'>You have {userData?.credits || 0} credits</p><p className='mt-1 text-xs leading-5 text-stone-500'>Use 50 credits to start a complete interview.</p><button onClick={() => navigate('/pricing')} className='mt-4 w-full rounded-xl bg-stone-900 py-2.5 text-xs font-bold text-white transition hover:bg-orange-600'>Get more credits</button></div>}
+          {openMenu === 'credits' && <div className='absolute right-16 top-[4.8rem] w-60 rounded-2xl border border-stone-200 bg-white p-4 text-stone-900 shadow-2xl'><p className='text-sm font-bold'>You have {userData?.credits || 0} credits</p><p className='mt-1 text-xs leading-5 text-stone-500'>Use 50 credits to start a complete interview.</p></div>}
           {openMenu === 'user' && <div className='absolute right-2 top-[4.8rem] w-52 rounded-2xl border border-stone-200 bg-white p-4 text-stone-900 shadow-2xl'><p className='mb-3 truncate text-sm font-bold'>{userData?.name}</p><button onClick={() => navigate('/history')} className='block w-full rounded-lg px-2 py-2 text-left text-xs font-semibold text-stone-500 transition hover:bg-stone-50 hover:text-stone-900'>Interview history</button><button onClick={handleLogout} className='flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-xs font-semibold text-red-500 transition hover:bg-red-50'><HiOutlineLogout /> Log out</button></div>}
         </nav>
       </header>

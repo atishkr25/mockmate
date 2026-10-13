@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import axios from "axios";
 import { motion } from "motion/react"
 import { FaRobot, FaTimes } from "react-icons/fa";
 import { IoSparkles } from "react-icons/io5";
 import { FcGoogle } from "react-icons/fc";
-import { signInWithPopup } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, updateProfile } from 'firebase/auth';
 import { auth, provider } from '../utils/firebase';
 import { serverURL } from '../App.jsx';
 import { useDispatch } from 'react-redux';
@@ -16,24 +16,56 @@ import AuthModel from '../components/AuthModel.jsx';
 function Auth({isModel = false, onClose}) {
 
   const dispatch = useDispatch();
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [authError, setAuthError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const syncUserWithBackend = async (user) => {
+    const result = await axios.post(serverURL + "/api/auth/google", {
+      name: user.displayName || name || user.email?.split('@')[0] || 'MockMate user',
+      email: user.email,
+    }, {withCredentials: true});
+    dispatch(setUserData(result.data));
+  };
 
   const handleGoogleAuth = async () => {
     try {
       const response = await signInWithPopup(auth, provider); // Ye Firebase ka function hai jo Google login popup open karta hai aur successful authentication ke baad user object return karta hai.
-      let User = response.user
-      let name = User.displayName
-      let email = User.email
-      
-      const result = await axios.post(serverURL + "/api/auth/google", // user detail sgoes to backend , Backend MongoDB me user create/find karta hai, JWT generate karta hai aur application-specific data (credits, history, subscription) manage karta hai.
-        {name, email}, 
-        {withCredentials: true}
-      );
-      dispatch(setUserData(result.data)); // redux me user details store 
+      await syncUserWithBackend(response.user);
     } catch (error) {
-      console.error(error);
-      dispatch(setUserData(null));
+      setAuthError(error.message || 'Google sign-in failed.');
     }
   }
+
+  const handleEmailAuth = async (event) => {
+    event.preventDefault();
+    setAuthError('');
+    setIsLoading(true);
+
+    try {
+      let userCredential;
+      if (isRegistering) {
+        userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(userCredential.user, { displayName: name.trim() });
+      } else {
+        userCredential = await signInWithEmailAndPassword(auth, email, password);
+      }
+      await syncUserWithBackend(userCredential.user);
+    } catch (error) {
+      const messages = {
+        'auth/email-already-in-use': 'An account with this email already exists.',
+        'auth/invalid-credential': 'Email or password is incorrect.',
+        'auth/weak-password': 'Password must be at least 6 characters.',
+        'auth/invalid-email': 'Enter a valid email address.',
+      };
+      setAuthError(messages[error.code] || error.message || 'Email authentication failed.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className={`
@@ -81,6 +113,19 @@ function Auth({isModel = false, onClose}) {
           <FcGoogle size={20} />
           Continue with Google
         </motion.button>
+        <div className='my-6 flex items-center gap-3 text-xs text-gray-400'><span className='h-px flex-1 bg-gray-200' />OR<span className='h-px flex-1 bg-gray-200' /></div>
+        <form onSubmit={handleEmailAuth} className='space-y-3'>
+          {isRegistering && <input type='text' required value={name} onChange={(event) => setName(event.target.value)} placeholder='Full name' className='w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100' />}
+          <input type='email' required value={email} onChange={(event) => setEmail(event.target.value)} placeholder='Email address' className='w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100' />
+          <input type='password' required minLength={6} value={password} onChange={(event) => setPassword(event.target.value)} placeholder='Password (at least 6 characters)' className='w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100' />
+          {authError && <p className='rounded-xl bg-red-50 px-3 py-2 text-xs leading-5 text-red-600'>{authError}</p>}
+          <button type='submit' disabled={isLoading} className='w-full rounded-full bg-orange-600 py-3 text-sm font-bold text-white transition hover:bg-orange-500 disabled:cursor-not-allowed disabled:bg-gray-300'>
+            {isLoading ? 'Please wait...' : isRegistering ? 'Create account' : 'Sign in with email'}
+          </button>
+        </form>
+        <button type='button' onClick={() => { setIsRegistering(!isRegistering); setAuthError(''); }} className='mt-4 w-full text-center text-sm font-semibold text-gray-500 transition hover:text-orange-600'>
+          {isRegistering ? 'Already have an account? Sign in' : "Don't have an account? Create one"}
+        </button>
       </motion.div>
     </div>
   )
